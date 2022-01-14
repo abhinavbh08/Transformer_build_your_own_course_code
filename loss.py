@@ -11,7 +11,7 @@ def sequence_mask(x, valid_len, value=0):
 
 
 class MaskedCELoss(nn.CrossEntropyLoss):
-    """Cross entropy loss with masking so that we do not consider the loss with the padding tokens."""
+    """Cross entropy loss with masking so that we do not consider the loss on tokens where poadding is done."""
     def forward(self, pred, labels, valid_len):
         # Pred: (B, max_len, vocab_size)
         # labels: (B, max_len)

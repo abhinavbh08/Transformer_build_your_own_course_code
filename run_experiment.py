@@ -40,6 +40,7 @@ def predict_sentence(model, sentence, src_vocab, tgt_vocab, max_len, device):
     # Converting the output generated sequence to words using target language vocabulary.
     return " ".join([tgt_vocab.idx2word[item] for item in output_seq])
 
+
 def test_bleu(model, src_vocab, tgt_vocab, len_sequence, device, sentences_preprocessed, true_trans_preprocessed):
 
     predictions = []
@@ -51,6 +52,7 @@ def test_bleu(model, src_vocab, tgt_vocab, len_sequence, device, sentences_prepr
     candidates = [nltk.tokenize.word_tokenize(sent.lower()) for sent in predictions]
     score = corpus_bleu(references, candidates)
     print(score)
+
 
 def train_model(model, data_loader, learning_rate, n_epochs, tgt_vocab, src_vocab, device):
 
@@ -98,6 +100,7 @@ def train_model(model, data_loader, learning_rate, n_epochs, tgt_vocab, src_voca
         test_bleu(model, src_vocab, tgt_vocab, len_sequence, device, sentences_preprocessed, true_trans_preprocessed)
         print(f"Epoch_Loss, {epoch}, {running_loss / len(data_loader.dataset)}")
 
+# Defining some hyper-parameters
 batch_size = 64
 len_sequence = 15
 lr = 0.0008
@@ -107,15 +110,23 @@ print(n_epochs, lr, len_sequence)
 data_iter, src_vocab, tgt_vocab = load_data(batch_size, len_sequence)
 print(len(src_vocab))
 print(len(tgt_vocab))
+# Initializing the transformer encoder.
 encoder = TransformerEncoder(
     query=128, key=128, value=128, hidden_size=128, num_head=4, dropout=0.1, lnorm_size=[128], ffn_input=128, ffn_hidden=256, vocab_size=len(src_vocab), num_layers = 2
 )
+
+# Initialising the transformer decoder.
 decoder = TransformerDecoder(
     query=128, key=128, value=128, hidden_size=128, num_head=4, dropout=0.1, lnorm_size=[128], ffn_input=128, ffn_hidden=256, vocab_size=len(tgt_vocab), num_layers = 2
 )
+
 model = TransformerEncoderDecoder(encoder, decoder)
+
+#Train the model
 train_model(model, data_iter, lr, n_epochs, tgt_vocab, src_vocab, device)
 PATH = "model_att.pt"
+
+# Save the final model.
 torch.save(model.state_dict(), PATH)
 
 

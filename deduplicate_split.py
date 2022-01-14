@@ -14,12 +14,12 @@ with open("data/de-en_deduplicated/WMT-News.de-en.en", "r") as f:
 with open("data/de-en_deduplicated/WMT-News.de-en.de", "r") as f:
     de = f.read().split("\n")[:-1]
 
-# en_distinct = []
-# de_distinct = []
-# for index, line in enumerate(en):
-#     if line not in en_distinct:
-#         en_distinct.append(line)
-#         de_distinct.append(de[index])
+en_distinct = []
+de_distinct = []
+for index, line in enumerate(en):
+    if line not in en_distinct:
+        en_distinct.append(line)
+        de_distinct.append(de[index])
 
 write_file("de-en.en", en)
 write_file("de-en.de", de)

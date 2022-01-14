@@ -1,11 +1,12 @@
-import numpy as np
-import pandas as pd
 import torch
 from vocab import Vocab
 from torch.utils import data
 import nltk
 
+
 def read_data():
+    """Reads the training dataset"""
+
     # Data paths if training models on kaggle kernels for better gpus
     data_path_en_kaggle = "/kaggle/input/deentxt/train.en"
     data_path_de_kaggle = "/kaggle/input/deentxt/train.de"
@@ -14,19 +15,17 @@ def read_data():
     data_path_en = "data/de-en_deduplicated/train.en"
     data_path_de = "data/de-en_deduplicated/train.de"
 
-    with open(data_path_en, "r") as file:
+    with open(data_path_en_kaggle, "r") as file:
         data_en = file.read().split("\n")[:-1]
 
-    with open(data_path_de, "r") as file:
+    with open(data_path_de_kaggle, "r") as file:
         data_de = file.read().split("\n")[:-1]        
 
     return data_en, data_de
 
-# raw_text = read_data()
-# print("abc")
 
 def read_val_data():
-    """Reads the test data and returns the list of source and target sentences."""
+    """Reads the validation data and returns the list of source and target sentences."""
 
     data_path_en_kaggle = "/kaggle/input/deentxt/val.en"
     data_path_de_kaggle = "/kaggle/input/deentxt/val.de"
@@ -34,15 +33,14 @@ def read_val_data():
     data_path_en = "data/de-en_deduplicated/val.en" 
     data_path_de = "data/de-en_deduplicated/val.de" 
 
-    with open(data_path_en, "r") as file:
+    with open(data_path_en_kaggle, "r") as file:
         data_en = file.read().split("\n")[:-1]
-    with open(data_path_de, "r") as file:
+    with open(data_path_de_kaggle, "r") as file:
         data_de = file.read().split("\n")[:-1]        
 
     source, target = data_en, data_de
     return source, target
 
-# read_test_data(data_name="php")
 
 def tokenize_data(text):
     """Tokenize the data using NLTK word tokenizer."""
@@ -57,10 +55,6 @@ def tokenize_data(text):
     # Return lists of tokenized src and target sentences.
     return source, target
 
-# source, target = tokenize_data(preprocessed_text)
-# print(source[:5], target[:5])
-# src_vocab = Vocab(source, min_freq=2, reserved_tokens=['<pad>', '<bos>', '<eos>'])
-# print(len(src_vocab))
 
 def truncate_and_pad(line, max_len, padding_token):
     """Truncate the sentence if it is longer than max_len, also pad it to max_len if it is smaller than max_len"""
@@ -73,14 +67,15 @@ def truncate_and_pad(line, max_len, padding_token):
     return line + [padding_token] * (max_len - len(line))
 
 
-def convert_to_indices(lines, vocab, num_steps):
+def convert_to_indices(lines, vocab, max_len):
+    """Convert the data to indices and also get the original lengths of the sentences before padding."""
 
     # Get the indices from the vocab for each of the sentence.
     lines = [vocab[l] for l in lines]
 
     # Append end of sentence token to the sentence.
     lines = [l + [vocab["<eos>"]] for l in lines]
-    arr = torch.tensor([truncate_and_pad(l, num_steps, vocab["<pad>"]) for l in lines])
+    arr = torch.tensor([truncate_and_pad(l, max_len, vocab["<pad>"]) for l in lines])
 
     # Caclulate the actual lengths of the sentence before padding.
     valid_len = (arr != vocab["<pad>"]).type(torch.int32).sum(1)
@@ -88,6 +83,7 @@ def convert_to_indices(lines, vocab, num_steps):
 
 
 def load_data(batch_size, max_len):
+    """Load the data into a dataloader."""
 
     preprocessed_text = read_data()
     source, target = tokenize_data(preprocessed_text)
@@ -107,18 +103,3 @@ def load_data(batch_size, max_len):
     # Create the dataloader from the dataset.
     itrtr = data.DataLoader(dataset, batch_size, shuffle=True)
     return itrtr, src_vocab, tgt_vocab
-
-# train_iter, src_vocab, tgt_vocab = load_data(2, max_len=12)
-# for x, x_len, y, y_len in train_iter:
-#     print(x)
-#     print(x_len)
-#     a1 = []
-#     for i in x[0]:
-#         a1.append(src_vocab.idx2word[i])
-#     print(y)
-#     print(y_len)
-#     a2 = []
-#     for i in y[0]:
-#         a2.append(tgt_vocab.idx2word[i])
-#     print(" ".join(a1), " ".join(a2))
-#     break

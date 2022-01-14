@@ -7,8 +7,8 @@ import math
 
 class LNorm(nn.Module):
     """Class to do layer normalisation and addition of residual connection."""
-    def __init__(self, lnorm_size, dropout, **kwargs):
-        super(LNorm, self).__init__(**kwargs)
+    def __init__(self, lnorm_size, dropout):
+        super(LNorm, self).__init__()
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(lnorm_size)
 
@@ -110,7 +110,7 @@ class Transformerdecoderblock(nn.Module):
         else:
             dec_valid_lens = None # No need for maskind during predicition since we do not have future tokens.
 
-        # Passinf the input of decoder to the decoder self attention block
+        # Passing the input of decoder to the decoder self attention block
         op_att1 = self.dec_self_att(x, keys, keys, dec_valid_lens)
         y = self.l_norm_dec_self_attention(x, op_att1)
         # Passing the output of layer_ normalisation to the encoder  decoder attention block.
