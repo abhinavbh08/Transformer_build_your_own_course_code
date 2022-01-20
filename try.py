@@ -109,9 +109,9 @@ def load_data_nmt(batch_size, num_steps, num_examples=600):
     text1 = preprocess_nmt(read_data_nmt(path="/kaggle/input/dedupdata/train.en"))
     text2 = preprocess_nmt(read_data_nmt(path="/kaggle/input/dedupdata/train.de"))
     source, target = tokenize_nmt((text1, text2), num_examples)
-    src_vocab = Vocab(source, min_freq=2,
+    src_vocab = Vocab(source, min_freq=1,
                           reserved_tokens=['<pad>', '<bos>', '<eos>'])
-    tgt_vocab = Vocab(target, min_freq=2,
+    tgt_vocab = Vocab(target, min_freq=1,
                           reserved_tokens=['<pad>', '<bos>', '<eos>'])
     src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
     tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
@@ -516,11 +516,11 @@ class TransformerDecoder(AttentionDecoder):
             X, state = blk(X, state)
         return self.dense(X), state
 
-num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
+num_hiddens, num_layers, dropout, batch_size, num_steps = 256, 3, 0.1, 128, 20
 lr, num_epochs, device = 0.0001, 200, torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-ffn_num_input, ffn_num_hiddens, num_heads = 32, 64, 4
-key_size, query_size, value_size = 32, 32, 32
-norm_shape = [32]
+ffn_num_input, ffn_num_hiddens, num_heads = 256, 256, 8
+key_size, query_size, value_size = 256, 256, 256
+norm_shape = [256]
 
 train_iter, src_vocab, tgt_vocab = load_data_nmt(batch_size, num_steps)
 
