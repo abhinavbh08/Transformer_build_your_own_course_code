@@ -185,9 +185,8 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             l = loss(Y_hat, Y, Y_valid_len)
             l.sum().backward()  # Make the loss scalar for `backward`
             num_tokens = Y_valid_len.sum()
-            optimizer.step()
             torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0)
-
+            optimizer.step()
             with torch.no_grad():
                 rl += l.sum().item()                
         src_sentence="A boy wearing headphones sits on a woman's shoulders ."
