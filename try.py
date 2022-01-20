@@ -517,7 +517,7 @@ class TransformerDecoder(AttentionDecoder):
         return self.dense(X), state
 
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
-lr, num_epochs, device = 0.005, 200, torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+lr, num_epochs, device = 0.0001, 200, torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ffn_num_input, ffn_num_hiddens, num_heads = 32, 64, 4
 key_size, query_size, value_size = 32, 32, 32
 norm_shape = [32]
