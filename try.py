@@ -263,7 +263,7 @@ class DotProductAttention(nn.Module):
         # Set `transpose_b=True` to swap the last two dimensions of `keys`
         scores = torch.bmm(queries, keys.transpose(1,2)) / math.sqrt(d)
         self.attention_weights = masked_softmax(scores, valid_lens)
-        return torch.bmm(self.dropout(self.attention_weights), values)
+        return torch.bmm(self.attention_weights, values)
 
 
 class MultiHeadAttention(nn.Module):
@@ -358,6 +358,7 @@ class PositionWiseFFN(nn.Module):
         self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
         self.relu = nn.ReLU()
         self.dense2 = nn.Linear(ffn_num_hiddens, ffn_num_outputs)
+        self.dropout = nn.Dropout(0.1)
 
     def forward(self, X):
         return self.dense2(self.relu(self.dense1(X)))
@@ -518,7 +519,7 @@ class TransformerDecoder(AttentionDecoder):
 
 num_hiddens, num_layers, dropout, batch_size, num_steps = 256, 3, 0.1, 128, 20
 lr, num_epochs, device = 0.0001, 200, torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-ffn_num_input, ffn_num_hiddens, num_heads = 256, 256, 8
+ffn_num_input, ffn_num_hiddens, num_heads = 256, 256, 4
 key_size, query_size, value_size = 256, 256, 256
 norm_shape = [256]
 
